@@ -20,7 +20,7 @@ func TestNewTopkManager(t *testing.T) {
 			manager.Receive(fmt.Sprintf("baidu%d.com",i),1)
 		}
 	}
-	result := <-manager.topkChan
+	result := <-manager.TopKChan
 	if len(result) != 10{
 		t.Errorf("expect receive top10 but got len=%d",len(result))
 	}
@@ -38,7 +38,7 @@ func TestNewTopkManager(t *testing.T) {
 		}
 	}
 
-	result = <-manager.topkChan
+	result = <-manager.TopKChan
 	if len(result) != 10{
 		t.Errorf("expect receive top10 but got len=%d",len(result))
 	}

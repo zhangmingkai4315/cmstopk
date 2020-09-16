@@ -2,18 +2,19 @@ package cmstopk
 
 import "time"
 
-type TopkManager struct {
-	topkChan chan []*ItemNode
+type TopKManager struct {
+	TopKChan chan []*ItemNode
 	dataChan chan *ItemNode
 	reset    bool
 	duration time.Duration
 	cms      *CountMinSketch
 	heap     *Heap
 }
-func (manager *TopkManager) Receive(item string, count uint64){
+
+func (manager *TopKManager) Receive(item string, count uint64){
 	manager.dataChan<-NewItemNode(item, count)
 }
-func (manager *TopkManager) update(item string, count uint64) {
+func (manager *TopKManager) update(item string, count uint64) {
 	v := manager.cms.UpdateString(item, count)
 	i, node := manager.heap.Find(item)
 	if i == -1 {
@@ -24,13 +25,13 @@ func (manager *TopkManager) update(item string, count uint64) {
 	}
 }
 
-func NewTopkManager(k int, duration time.Duration,reset bool) *TopkManager {
+func NewTopkManager(k int, duration time.Duration,reset bool) *TopKManager {
 	cms, _ := NewCountMinSketch(5, 10000)
-	manager := &TopkManager{
-		topkChan: make(chan []*ItemNode),
+	manager := &TopKManager{
+		TopKChan: make(chan []*ItemNode),
 		dataChan: make(chan *ItemNode, 10000),
 		cms:      cms,
-		reset: reset,
+		reset:    reset,
 		heap:     NewHeap(k),
 	}
 
@@ -47,7 +48,7 @@ func NewTopkManager(k int, duration time.Duration,reset bool) *TopkManager {
 						break
 					}
 				}
-				manager.topkChan <- result
+				manager.TopKChan <- result
 				if manager.reset == true{
 					manager.Reset()
 				}
@@ -60,7 +61,7 @@ func NewTopkManager(k int, duration time.Duration,reset bool) *TopkManager {
 }
 
 
-func (manager * TopkManager)Reset(){
+func (manager *TopKManager)Reset(){
 	manager.cms.Reset()
 	manager.heap.Reset()
 }
